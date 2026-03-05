@@ -468,7 +468,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <label class="flbl">Image URL</label>
       <input class="finp" id="col-img" placeholder="Paste image link (e.g. from imgur.com)" oninput="prevImg('col-prev','col-img')"/>
       <img id="col-prev" class="imgprev"/>
-      <div class="imgnote">&#128161; Upload at <a href="https://imgbb.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">imgbb.com</a> → click uploaded image → copy <strong style="color:var(--gold)">Direct link</strong> → paste above</div>
+      <div class="imgnote">&#128161; Upload at <a href="https://imgbb.com" target="_blank" style="color:#b83030;text-decoration:underline">imgbb.com</a> &rarr; copy <strong>Direct link</strong> &rarr; paste above</div>
     </div>
     <button class="btn bp bbig" onclick="addCollection()">+ Create Collection</button>
   </div>
@@ -490,7 +490,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <label class="flbl">Image URL</label>
       <input class="finp" id="p-img" placeholder="Paste image link" oninput="prevImg('p-prev','p-img')"/>
       <img id="p-prev" class="imgprev"/>
-      <div class="imgnote">&#128161; Upload at <a href="https://imgbb.com" target="_blank" style="color:var(--accent2);text-decoration:underline;">imgbb.com</a> → click uploaded image → copy <strong style="color:var(--gold)">Direct link</strong> → paste above</div>
+      <div class="imgnote">&#128161; Upload at <a href="https://imgbb.com" target="_blank" style="color:#b83030;text-decoration:underline">imgbb.com</a> &rarr; copy <strong>Direct link</strong> &rarr; paste above</div>
     </div>
     <button class="btn bp bbig" onclick="addProduct()">+ Add Product</button>
   </div>
@@ -719,7 +719,7 @@ function renderCols(){
   gr.innerHTML=cols.map(function(c){
     var cnt=prods.filter(function(p){return p.colId===c._id;}).length;
     var img=c.imgUrl?'<img src="'+c.imgUrl+'" class="pimg" onerror="this.remove()">':'<div class="piph">&#128248;</div>';
-    return'<div class="pcard">'+img+'<div class="pbody"><div class="pname">'+c.name+'</div><div class="pmeta">'+(c.season||'')+' &bull; '+cnt+' products</div><div class="pmeta">'+(c.desc||'')+'</div><div class="pacts"><button class="btn bgh" style="font-size:11px;padding:4px 9px;" onclick="viewCol('+JSON.stringify(c._id)+')">View</button><button class="dbtn" onclick="delCol('+JSON.stringify(c._id)+')">&#215;</button></div></div></div>';
+    return'<div class="pcard">'+img+'<div class="pbody"><div class="pname">'+c.name+'</div><div class="pmeta">'+(c.season||'')+' &bull; '+cnt+' products</div><div class="pmeta">'+(c.desc||'')+'</div><div class="pacts"><button class="btn bgh" style="font-size:11px;padding:4px 9px;" data-id="'+c._id+'" onclick="viewCol(this.dataset.id)">View</button><button class="dbtn" data-id="'+c._id+'" onclick="delCol(this.dataset.id)">&#215;</button></div></div></div>';
   }).join('');
 }
 function viewCol(id){ goPage('products',null);g('pcolfilter').value=id;renderProds();document.querySelectorAll('.nitem').forEach(function(n){if(n.textContent.includes('Products'))n.classList.add('active');else n.classList.remove('active');}); }
@@ -739,7 +739,7 @@ function renderProds(){
   gr.innerHTML=items.map(function(p){
     var q=parseInt(p.qty||0), sb=q===0?'<span class="badge b2">Out of Stock</span>':q<=2?'<span class="badge b3">Low Stock</span>':'<span class="badge b4">'+q+' in stock</span>';
     var img=p.imgUrl?'<img src="'+p.imgUrl+'" class="pimg" onerror="this.remove()">':'<div class="piph">&#128248;</div>';
-    return'<div class="pcard">'+img+'<div class="pbody"><div class="pname">'+p.name+'</div><div class="pmeta">'+(p.colName||'No collection')+' &bull; '+p.cat+'</div>'+sb+'<div class="pprice">'+N(p.sell)+'</div><div class="pmeta" style="margin-top:2px;">Cost: '+N(p.cost)+'</div><div class="pacts"><button class="btn bp" style="font-size:11px;padding:4px 9px;" onclick="qsale('+JSON.stringify(p._id)+')">Sell</button><button class="dbtn" onclick="delProd('+JSON.stringify(p._id)+')">&#215;</button></div></div></div>';
+    return'<div class="pcard">'+img+'<div class="pbody"><div class="pname">'+p.name+'</div><div class="pmeta">'+(p.colName||'No collection')+' &bull; '+p.cat+'</div>'+sb+'<div class="pprice">'+N(p.sell)+'</div><div class="pmeta" style="margin-top:2px;">Cost: '+N(p.cost)+'</div><div class="pacts"><button class="btn bp" style="font-size:11px;padding:4px 9px;" data-id="'+p._id+'" onclick="qsale(this.dataset.id)">Sell</button><button class="dbtn" data-id="'+p._id+'" onclick="delProd(this.dataset.id)">&#215;</button></div></div></div>';
   }).join('');
 }
 function delProd(id){ if(!confirm('Delete product?'))return; db.collection('products').doc(id).delete(); }
@@ -763,8 +763,8 @@ function rSales(){
   var fs=fS(); txt('s-total','Total: '+N(fs.reduce(function(a,s){return a+parseFloat(s.amount||0);},0)));
   if(!fs.length){g('stbody').innerHTML='';g('smcards').innerHTML='';g('sempty').style.display='block';return;}
   g('sempty').style.display='none';
-  g('stbody').innerHTML=fs.map(function(s){return'<tr><td style="padding-left:16px;">'+D(s.date)+'</td><td>'+(s.prodName||'')+'</td><td><span class="badge b1">'+(s.colName||'\u2014')+'</span></td><td><span class="badge b5">'+s.pay+'</span></td><td class="r">'+(s.qty||1)+'</td><td class="r" style="color:var(--accent2);font-weight:500;">'+N(s.amount)+'</td><td class="r" style="color:var(--dim);font-size:11px;">'+(s.customerName||'\u2014')+'</td><td><button class="dbtn" onclick="delSale('+JSON.stringify(s._id)+')">&#215;</button></td></tr>';}).join('');
-  g('smcards').innerHTML=fs.map(function(s){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+(s.prodName||'')+'</div><div class="mcmeta">'+D(s.date)+' &bull; '+(s.colName||'')+' &bull; Qty:'+(s.qty||1)+'</div></div><div class="mcamt" style="color:var(--accent2)">'+N(s.amount)+'</div></div><div style="display:flex;justify-content:space-between;margin-top:5px;"><span class="badge b5">'+s.pay+'</span><button class="dbtn" onclick="delSale('+JSON.stringify(s._id)+')">&#215;</button></div></div>';}).join('');
+  g('stbody').innerHTML=fs.map(function(s){return'<tr><td style="padding-left:16px;">'+D(s.date)+'</td><td>'+(s.prodName||'')+'</td><td><span class="badge b1">'+(s.colName||'\u2014')+'</span></td><td><span class="badge b5">'+s.pay+'</span></td><td class="r">'+(s.qty||1)+'</td><td class="r" style="color:var(--accent2);font-weight:500;">'+N(s.amount)+'</td><td class="r" style="color:var(--dim);font-size:11px;">'+(s.customerName||'\u2014')+'</td><td><button class="dbtn" data-id="'+s._id+'" onclick="delSale(this.dataset.id)">&#215;</button></td></tr>';}).join('');
+  g('smcards').innerHTML=fs.map(function(s){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+(s.prodName||'')+'</div><div class="mcmeta">'+D(s.date)+' &bull; '+(s.colName||'')+' &bull; Qty:'+(s.qty||1)+'</div></div><div class="mcamt" style="color:var(--accent2)">'+N(s.amount)+'</div></div><div style="display:flex;justify-content:space-between;margin-top:5px;"><span class="badge b5">'+s.pay+'</span><button class="dbtn" data-id="'+s._id+'" onclick="delSale(this.dataset.id)">&#215;</button></div></div>';}).join('');
 }
 function delSale(id){ if(!confirm('Delete?'))return; db.collection('sales').doc(id).delete(); }
 
@@ -781,8 +781,8 @@ function rFC(){
   txt('fc-be',be>0?N(be)+'/mo':'N/A');
   if(!fcs.length){g('fctbody').innerHTML='';g('fcmcards').innerHTML='';g('fcempty').style.display='block';return;}
   g('fcempty').style.display='none';
-  g('fctbody').innerHTML=fcs.map(function(f){return'<tr><td style="padding-left:16px;font-weight:500;">'+f.name+'</td><td><span class="badge b3">'+f.cat+'</span></td><td style="text-transform:capitalize;">'+f.freq+'</td><td class="r" style="color:var(--purple);font-weight:500;">'+N(f.amount)+'</td><td><button class="dbtn" onclick="delFC('+JSON.stringify(f._id)+')">&#215;</button></td></tr>';}).join('');
-  g('fcmcards').innerHTML=fcs.map(function(f){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+f.name+'</div><div class="mcmeta">'+f.cat+' &bull; '+f.freq+'</div></div><div class="mcamt" style="color:var(--purple)">'+N(f.amount)+'</div></div><div style="text-align:right;"><button class="dbtn" onclick="delFC('+JSON.stringify(f._id)+')">&#215;</button></div></div>';}).join('');
+  g('fctbody').innerHTML=fcs.map(function(f){return'<tr><td style="padding-left:16px;font-weight:500;">'+f.name+'</td><td><span class="badge b3">'+f.cat+'</span></td><td style="text-transform:capitalize;">'+f.freq+'</td><td class="r" style="color:var(--purple);font-weight:500;">'+N(f.amount)+'</td><td><button class="dbtn" data-id="'+f._id+'" onclick="delFC(this.dataset.id)">&#215;</button></td></tr>';}).join('');
+  g('fcmcards').innerHTML=fcs.map(function(f){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+f.name+'</div><div class="mcmeta">'+f.cat+' &bull; '+f.freq+'</div></div><div class="mcamt" style="color:var(--purple)">'+N(f.amount)+'</div></div><div style="text-align:right;"><button class="dbtn" data-id="'+f._id+'" onclick="delFC(this.dataset.id)">&#215;</button></div></div>';}).join('');
 }
 function delFC(id){ if(!confirm('Delete?'))return; db.collection('fixedCosts').doc(id).delete(); }
 
@@ -798,8 +798,8 @@ function rVC(){
   txt('vc-sub','Total: '+N(total));
   if(!fv.length){g('vctbody').innerHTML='';g('vcmcards').innerHTML='';g('vcempty').style.display='block';return;}
   g('vcempty').style.display='none';
-  g('vctbody').innerHTML=fv.map(function(v){return'<tr><td style="padding-left:16px;">'+D(v.date)+'</td><td>'+v.desc+'</td><td><span class="badge b3">'+v.cat+'</span></td><td class="r">'+N(v.unit)+'</td><td class="r">'+v.qty+'</td><td class="r" style="color:var(--purple);font-weight:500;">'+N(v.total)+'</td><td><button class="dbtn" onclick="delVC('+JSON.stringify(v._id)+')">&#215;</button></td></tr>';}).join('');
-  g('vcmcards').innerHTML=fv.map(function(v){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+v.desc+'</div><div class="mcmeta">'+D(v.date)+' &bull; '+v.cat+' &bull; Qty:'+v.qty+'</div></div><div class="mcamt" style="color:var(--purple)">'+N(v.total)+'</div></div><div style="text-align:right;"><button class="dbtn" onclick="delVC('+JSON.stringify(v._id)+')">&#215;</button></div></div>';}).join('');
+  g('vctbody').innerHTML=fv.map(function(v){return'<tr><td style="padding-left:16px;">'+D(v.date)+'</td><td>'+v.desc+'</td><td><span class="badge b3">'+v.cat+'</span></td><td class="r">'+N(v.unit)+'</td><td class="r">'+v.qty+'</td><td class="r" style="color:var(--purple);font-weight:500;">'+N(v.total)+'</td><td><button class="dbtn" data-id="'+v._id+'" onclick="delVC(this.dataset.id)">&#215;</button></td></tr>';}).join('');
+  g('vcmcards').innerHTML=fv.map(function(v){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+v.desc+'</div><div class="mcmeta">'+D(v.date)+' &bull; '+v.cat+' &bull; Qty:'+v.qty+'</div></div><div class="mcamt" style="color:var(--purple)">'+N(v.total)+'</div></div><div style="text-align:right;"><button class="dbtn" data-id="'+v._id+'" onclick="delVC(this.dataset.id)">&#215;</button></div></div>';}).join('');
 }
 function delVC(id){ if(!confirm('Delete?'))return; db.collection('varCosts').doc(id).delete(); }
 
@@ -824,8 +824,8 @@ function rExps(){
   txt('e-total','Total: '+N(fE().reduce(function(a,e){return a+parseFloat(e.amount||0);},0)));
   if(!fe.length){g('etbody').innerHTML='';g('emcards').innerHTML='';g('eempty').style.display='block';return;}
   g('eempty').style.display='none';
-  g('etbody').innerHTML=fe.map(function(e){return'<tr><td style="padding-left:16px;">'+D(e.date)+'</td><td>'+e.desc+'</td><td><span class="badge b3">'+e.cat+'</span></td><td class="r" style="color:#e74c3c;font-weight:500;">'+N(e.amount)+'</td><td><button class="dbtn" onclick="delExp('+JSON.stringify(e._id)+')">&#215;</button></td></tr>';}).join('');
-  g('emcards').innerHTML=fe.map(function(e){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+e.desc+'</div><div class="mcmeta">'+D(e.date)+' &bull; '+e.cat+'</div></div><div class="mcamt" style="color:#e74c3c">'+N(e.amount)+'</div></div><div style="text-align:right;"><button class="dbtn" onclick="delExp('+JSON.stringify(e._id)+')">&#215;</button></div></div>';}).join('');
+  g('etbody').innerHTML=fe.map(function(e){return'<tr><td style="padding-left:16px;">'+D(e.date)+'</td><td>'+e.desc+'</td><td><span class="badge b3">'+e.cat+'</span></td><td class="r" style="color:#e74c3c;font-weight:500;">'+N(e.amount)+'</td><td><button class="dbtn" data-id="'+e._id+'" onclick="delExp(this.dataset.id)">&#215;</button></td></tr>';}).join('');
+  g('emcards').innerHTML=fe.map(function(e){return'<div class="mcard"><div class="mctop"><div><div class="mcname">'+e.desc+'</div><div class="mcmeta">'+D(e.date)+' &bull; '+e.cat+'</div></div><div class="mcamt" style="color:#e74c3c">'+N(e.amount)+'</div></div><div style="text-align:right;"><button class="dbtn" data-id="'+e._id+'" onclick="delExp(this.dataset.id)">&#215;</button></div></div>';}).join('');
 }
 function delExp(id){ if(!confirm('Delete?'))return; db.collection('expenses').doc(id).delete(); }
 
