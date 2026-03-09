@@ -14,6 +14,25 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── PRINT: remove browser header/footer ── */
+  .btn-wa    { background:#25D366; color:#fff; border:none; }
+  .btn-wa:hover { background:#1ebe5d; }
+  .btn-email { background:#1a73e8; color:#fff; border:none; }
+  .btn-email:hover { background:#1558b0; }
+
+  /* ── EMAIL CONFIG MODAL ── */
+  .modal-bg { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:none;align-items:center;justify-content:center; }
+  .modal-bg.open { display:flex; }
+  .modal-box { background:#fff;border-radius:8px;padding:28px 24px;width:90%;max-width:420px;font-family:'Jost',sans-serif; }
+  .modal-title { font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B2020;margin-bottom:18px; }
+  .modal-inp { width:100%;border:1px solid #ddd;border-radius:4px;padding:10px 12px;font-size:13px;margin-bottom:10px;outline:none;font-family:'Jost',sans-serif; }
+  .modal-inp:focus { border-color:#8B2020; }
+  .modal-note { font-size:11px;color:#999;margin-bottom:16px;line-height:1.6; }
+  .modal-btns { display:flex;gap:8px;justify-content:flex-end; }
+  .modal-btn { padding:9px 18px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;border:none; }
+  .modal-cancel { background:#f0f0f0;color:#666; }
+  .modal-send { background:#8B2020;color:#fff; }
+  .modal-send:hover { background:#a02626; }
+
   @page { margin: 0; size: auto; }
   @media print {
     html, body { margin:0; padding:0; background:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -156,6 +175,8 @@
   .torn-bottom { width:100%; height:16px; background:var(--white);
     clip-path:polygon(0% 0%,2% 70%,4% 20%,6% 80%,8% 30%,10% 85%,12% 35%,14% 75%,16% 25%,18% 90%,20% 40%,22% 70%,24% 15%,26% 80%,28% 30%,30% 85%,32% 35%,34% 70%,36% 20%,38% 80%,40% 25%,42% 90%,44% 40%,46% 75%,48% 20%,50% 85%,52% 35%,54% 70%,56% 20%,58% 80%,60% 30%,62% 85%,64% 35%,66% 75%,68% 25%,70% 90%,72% 40%,74% 70%,76% 20%,78% 80%,80% 30%,82% 85%,84% 35%,86% 70%,88% 20%,90% 80%,92% 30%,94% 75%,96% 25%,98% 85%,100% 40%,100% 0%); }
 </style>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <!-- Firebase Compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -734,6 +755,170 @@ async function deleteReceipt(docId) {
   } catch(e) {
     alert('Error deleting. Check internet connection.');
   }
+}
+</script>
+
+<!-- EMAIL MODAL -->
+<div class="modal-bg" id="emailModal">
+  <div class="modal-box">
+    <div class="modal-title">✉ Send Receipt by Email</div>
+    <input class="modal-inp" id="emailTo" type="email" placeholder="Customer email address" />
+    <input class="modal-inp" id="emailSubject" type="text" placeholder="Subject" value="Your Hems & Gents Receipt" />
+    <div class="modal-note">
+      The receipt summary will be sent to the customer's email.<br>
+      <span style="color:#8B2020;font-weight:600;">First time?</span> Enter your EmailJS keys in Settings below.
+    </div>
+    <!-- EmailJS keys (stored in localStorage for config only) -->
+    <details style="margin-bottom:12px;">
+      <summary style="font-size:11px;color:#999;cursor:pointer;margin-bottom:8px;">⚙ EmailJS Settings (tap to configure)</summary>
+      <input class="modal-inp" id="ejsService" placeholder="Service ID (e.g. service_xxxxx)" />
+      <input class="modal-inp" id="ejsTemplate" placeholder="Template ID (e.g. template_xxxxx)" />
+      <input class="modal-inp" id="ejsPublicKey" placeholder="Public Key (from EmailJS dashboard)" />
+      <div class="modal-note">Get these from <strong>emailjs.com</strong> → Your account → Email Services & Templates. Saved locally on this device.</div>
+      <button class="modal-btn modal-send" style="width:100%;margin-bottom:4px;" onclick="saveEmailJSKeys()">Save Keys</button>
+    </details>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" onclick="closeEmailModal()">Cancel</button>
+      <button class="modal-btn modal-send" id="sendEmailBtn" onclick="doSendEmail()">Send Receipt ✉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── EMAILJS KEYS (config only — stored in localStorage, not receipts) ──
+function saveEmailJSKeys() {
+  localStorage.setItem('ejs_service',    document.getElementById('ejsService').value.trim());
+  localStorage.setItem('ejs_template',   document.getElementById('ejsTemplate').value.trim());
+  localStorage.setItem('ejs_public_key', document.getElementById('ejsPublicKey').value.trim());
+  alert('✓ EmailJS keys saved on this device.');
+}
+function loadEmailJSKeys() {
+  document.getElementById('ejsService').value    = localStorage.getItem('ejs_service')    || '';
+  document.getElementById('ejsTemplate').value   = localStorage.getItem('ejs_template')   || '';
+  document.getElementById('ejsPublicKey').value  = localStorage.getItem('ejs_public_key') || '';
+}
+
+// ── BUILD RECEIPT SUMMARY TEXT ──
+function buildReceiptSummary() {
+  const rcptNum  = document.getElementById('rcptNum').value      || 'N/A';
+  const rcptDate = document.getElementById('rcptDate').value     || '';
+  const custName = document.getElementById('custName').value     || 'Customer';
+  const servedBy = document.getElementById('servedBy').value     || '';
+  const grand    = document.getElementById('grandTotal').textContent || '₦0.00';
+  const notes    = document.getElementById('receiptNotes').value || '';
+  const payMethod = document.querySelector('.pay-chip.active')?.textContent || '';
+
+  let items = '';
+  document.querySelectorAll('#itemsBody tr').forEach(tr => {
+    const desc  = tr.querySelector('input[type="text"]')?.value || '';
+    const qty   = tr.querySelector('.item-qty')?.value          || '';
+    const price = tr.querySelector('.item-price')?.value        || '';
+    const amt   = tr.querySelector('.row-amt')?.textContent     || '';
+    if(desc) items += `  • ${desc}  ×${qty}  @ ₦${price}  = ${amt}
+`;
+  });
+
+  return {
+    to_name:     custName,
+    receipt_num: rcptNum,
+    receipt_date: rcptDate,
+    served_by:   servedBy,
+    items_list:  items || '  (no items)',
+    subtotal:    document.getElementById('subtotal').textContent || '₦0.00',
+    grand_total: grand,
+    pay_method:  payMethod,
+    notes:       notes,
+    store_name:  'Hems & Gents',
+    store_email: 'hemsgents@gmail.com',
+    store_phone: '0814 841 3093',
+  };
+}
+
+// ── EMAIL ──
+function sendEmail() {
+  const custContact = document.getElementById('custContact').value || '';
+  // Pre-fill email if contact looks like an email
+  const emailGuess = custContact.includes('@') ? custContact : '';
+  document.getElementById('emailTo').value = emailGuess;
+  loadEmailJSKeys();
+  document.getElementById('emailModal').classList.add('open');
+}
+function closeEmailModal() {
+  document.getElementById('emailModal').classList.remove('open');
+}
+async function doSendEmail() {
+  const toEmail    = document.getElementById('emailTo').value.trim();
+  const subject    = document.getElementById('emailSubject').value.trim();
+  const serviceId  = localStorage.getItem('ejs_service')    || '';
+  const templateId = localStorage.getItem('ejs_template')   || '';
+  const publicKey  = localStorage.getItem('ejs_public_key') || '';
+
+  if(!toEmail)    { alert('Please enter the customer email address.'); return; }
+  if(!serviceId || !templateId || !publicKey) {
+    alert('EmailJS not configured yet.
+
+Tap "⚙ EmailJS Settings" above and enter your Service ID, Template ID, and Public Key.
+
+Get them free at emailjs.com'); return;
+  }
+
+  const btn = document.getElementById('sendEmailBtn');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+
+  try {
+    emailjs.init(publicKey);
+    const params = buildReceiptSummary();
+    params.to_email = toEmail;
+    params.subject  = subject;
+    await emailjs.send(serviceId, templateId, params);
+    closeEmailModal();
+    alert('✓ Receipt sent to ' + toEmail);
+  } catch(err) {
+    console.error(err);
+    alert('Failed to send email.
+
+Check your EmailJS keys and make sure the template exists.
+Error: ' + (err.text || err.message || err));
+  } finally {
+    btn.textContent = 'Send Receipt ✉'; btn.disabled = false;
+  }
+}
+
+// ── WHATSAPP ──
+function sendWhatsApp() {
+  const custContact = document.getElementById('custContact').value || '';
+  // Extract phone — strip spaces, dashes, +234 → 0xxx or keep as-is
+  let phone = custContact.replace(/[\s\-()]/g, '');
+  // If it looks like an email, clear it
+  if(phone.includes('@')) phone = '';
+  // Normalise Nigerian numbers: 08xx → 2348xx
+  if(phone.startsWith('0') && phone.length >= 10) {
+    phone = '234' + phone.slice(1);
+  }
+
+  const d = buildReceiptSummary();
+  const msg =
+`🧾 *HEMS & GENTS RECEIPT*
+Receipt No: ${d.receipt_num}
+Date: ${d.receipt_date}
+
+*Items:*
+${d.items_list}
+Subtotal: ${d.subtotal}
+*TOTAL: ${d.grand_total}*
+Payment: ${d.pay_method || 'N/A'}
+${d.notes ? '
+Note: ' + d.notes : ''}
+
+_Thank you for shopping with Hems & Gents!_
+hemsgents@gmail.com | 0814 841 3093`;
+
+  const encoded = encodeURIComponent(msg);
+  const url = phone
+    ? `https://wa.me/${phone}?text=${encoded}`
+    : `https://wa.me/?text=${encoded}`;
+
+  window.open(url, '_blank');
 }
 </script>
 </body>
