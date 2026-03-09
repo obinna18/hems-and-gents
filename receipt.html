@@ -447,8 +447,22 @@ function addRow() {
 }
 function delRow(btn) { btn.closest('tr').remove(); recalc(); }
 
+// Event delegation - catches ALL input changes on the items table reliably
+document.addEventListener('DOMContentLoaded', function() {
+  var tbody = document.getElementById('itemsBody');
+  if(tbody) {
+    tbody.addEventListener('input', function() { recalc(); });
+    tbody.addEventListener('change', function() { recalc(); });
+  }
+  // Also recalc when discount or tax changes
+  var disc = document.getElementById('discount');
+  var tax  = document.getElementById('taxRate');
+  if(disc) disc.addEventListener('input', recalc);
+  if(tax)  tax.addEventListener('input', recalc);
+});
+
 // -- RECALC --
-let discType = 'fixed'; // 'fixed' = ₦ amount, 'pct' = percentage
+var discType = 'fixed'; // 'fixed' = ₦ amount, 'pct' = percentage
 
 function toggleDiscType() {
   discType = discType === 'fixed' ? 'pct' : 'fixed';
@@ -458,7 +472,7 @@ function toggleDiscType() {
   recalc();
 }
 
-function recalc() {
+window.recalc = function recalc() {
   let sub = 0;
   document.querySelectorAll('#itemsBody tr').forEach(tr => {
     const qty   = parseFloat(tr.querySelector('.item-qty')?.value)   || 0;
