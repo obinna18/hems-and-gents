@@ -355,25 +355,27 @@
 </div>
 
 <script>
+
 // -- STORAGE KEY --
 // -- FIREBASE CONFIG (same project as admin dashboard) --
 // Ensure Firebase is loaded before init
 function initFirebase() {
-  if(typeof firebase === 'undefined') {
-    setTimeout(initFirebase, 100); return;
-  }
-  firebase.initializeApp({
-  apiKey: "AIzaSyD9MrD0nof1O4iMEL6kDquZLXZepK19F6c",
-  authDomain: "hems-and-gents.firebaseapp.com",
-  projectId: "hems-and-gents",
-  storageBucket: "hems-and-gents.firebasestorage.app",
-  messagingSenderId: "124283920026",
-  appId: "1:124283920026:web:d63e0cae91543c42b70923"
-  });
-  db = firebase.firestore();
+  try {
+    if(typeof firebase === 'undefined') { setTimeout(initFirebase, 200); return; }
+    if(db) return; // already initialized
+    firebase.initializeApp({
+      apiKey: "AIzaSyD9MrD0nof1O4iMEL6kDquZLXZepK19F6c",
+      authDomain: "hems-and-gents.firebaseapp.com",
+      projectId: "hems-and-gents",
+      storageBucket: "hems-and-gents.firebasestorage.app",
+      messagingSenderId: "124283920026",
+      appId: "1:124283920026:web:d63e0cae91543c42b70923"
+    });
+    db = firebase.firestore();
+  } catch(e) { setTimeout(initFirebase, 500); }
 }
-initFirebase();
-// db is set globally by initFirebase()
+// Start Firebase init after page loads - completely non-blocking
+window.addEventListener('load', function() { setTimeout(initFirebase, 100); });
 let db = null;
 const RECEIPTS_COL = 'receipts';
 
@@ -416,20 +418,27 @@ let currentId  = null; // Firestore doc ID of receipt being edited
 let currentDocId = null;
 
 // -- INIT --
-(async () => {
-  document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('rcptNum').value = await genReceiptNum();
-  addRow(); addRow(); addRow();
-})();
+// Initialize UI immediately - no async blocking
+document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'});
+document.getElementById('rcptNum').value = 'RCP-001';
+addRow(); addRow(); addRow();
+// Update receipt number once Firebase is ready
+setTimeout(function() {
+  genReceiptNum().then(function(num) {
+    if(document.getElementById('rcptNum').value === 'RCP-001') {
+      document.getElementById('rcptNum').value = num;
+    }
+  }).catch(function(){});
+}, 2000);
 
-async function genReceiptNum() {
-  try {
-    const snap = await db.collection(RECEIPTS_COL).get();
-    const num = snap.size + 1;
-    return 'RCP-' + String(num).padStart(3,'0');
-  } catch(e) {
-    return 'RCP-' + String(Date.now()).slice(-4);
+function genReceiptNum() {
+  // Sync fallback - Firebase may not be ready yet on page load
+  if(db) {
+    return db.collection(RECEIPTS_COL).get()
+      .then(function(snap) { return 'RCP-' + String(snap.size + 1).padStart(3,'0'); })
+      .catch(function() { return 'RCP-' + String(Date.now()).slice(-4); });
   }
+  return Promise.resolve('RCP-001');
 }
 
 // -- ITEMS --
