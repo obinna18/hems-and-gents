@@ -186,13 +186,17 @@
 
 <!-- TOOLBAR -->
 <div class="toolbar no-print">
-  <div style="display:flex;gap:10px;">
-    <button class="btn btn-charcoal" onclick="toggleRecords()">📂 Saved Receipts</button>
-    <button class="btn btn-ghost" onclick="newReceipt()">+ New Receipt</button>
-  </div>
-  <div class="toolbar-right">
-    <button class="btn btn-ghost" onclick="saveReceipt()">💾 Save Receipt</button>
-    <button class="btn btn-accent" onclick="window.print()">⬇ Print / PDF</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;justify-content:space-between;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-charcoal" onclick="toggleRecords()">📂 Saved</button>
+      <button class="btn btn-ghost" onclick="newReceipt()">+ New</button>
+      <button class="btn btn-ghost" onclick="saveReceipt()">💾 Save</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-wa" onclick="sendWhatsApp()">💬 WhatsApp</button>
+      <button class="btn btn-email" onclick="sendEmail()">✉ Email</button>
+      <button class="btn btn-accent" onclick="window.print()">⬇ Print</button>
+    </div>
   </div>
 </div>
 
@@ -351,20 +355,29 @@
 </div>
 
 <script>
-// ── STORAGE KEY ──
-// ── FIREBASE CONFIG (same project as admin dashboard) ──
-firebase.initializeApp({
+// -- STORAGE KEY --
+// -- FIREBASE CONFIG (same project as admin dashboard) --
+// Ensure Firebase is loaded before init
+function initFirebase() {
+  if(typeof firebase === 'undefined') {
+    setTimeout(initFirebase, 100); return;
+  }
+  firebase.initializeApp({
   apiKey: "AIzaSyD9MrD0nof1O4iMEL6kDquZLXZepK19F6c",
   authDomain: "hems-and-gents.firebaseapp.com",
   projectId: "hems-and-gents",
   storageBucket: "hems-and-gents.firebasestorage.app",
   messagingSenderId: "124283920026",
   appId: "1:124283920026:web:d63e0cae91543c42b70923"
-});
-const db = firebase.firestore();
+  });
+  db = firebase.firestore();
+}
+initFirebase();
+// db is set globally by initFirebase()
+let db = null;
 const RECEIPTS_COL = 'receipts';
 
-// ── FIRESTORE HELPERS ──
+// -- FIRESTORE HELPERS --
 async function loadAll() {
   try {
     const snap = await db.collection(RECEIPTS_COL).orderBy('savedAt','desc').get();
@@ -390,7 +403,7 @@ async function deleteOne(docId) {
   } catch(e) { console.error('deleteOne error:', e); throw e; }
 }
 
-// ── FORMAT ──
+// -- FORMAT --
 function fmt(n) {
   return '₦' + Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
@@ -398,11 +411,11 @@ function parseFmt(s) {
   return parseFloat((s||'').replace(/[₦,]/g,'')) || 0;
 }
 
-// ── INIT ──
+// -- INIT --
 let currentId  = null; // Firestore doc ID of receipt being edited
 let currentDocId = null;
 
-// ── INIT ──
+// -- INIT --
 (async () => {
   document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'});
   document.getElementById('rcptNum').value = await genReceiptNum();
@@ -419,7 +432,7 @@ async function genReceiptNum() {
   }
 }
 
-// ── ITEMS ──
+// -- ITEMS --
 function addRow() {
   const tbody = document.getElementById('itemsBody');
   const tr = document.createElement('tr');
@@ -427,14 +440,14 @@ function addRow() {
     <td class="col-desc"><input type="text" placeholder="Item description" /></td>
     <td class="col-qty td-r"><input type="number" value="1" class="item-qty" min="0" oninput="recalc()" /></td>
     <td class="col-price td-r"><input type="number" placeholder="0.00" class="item-price" min="0" step="0.01" oninput="recalc()" onblur="recalc()" /></td>
-    <td class="col-amt td-r"><span class="row-amt">—</span></td>
-    <td class="col-del no-print"><button class="del-btn" onclick="delRow(this)">×</button></td>`;
+    <td class="col-amt td-r"><span class="row-amt">-</span></td>
+    <td class="col-del no-print"><button class="del-btn" onclick="delRow(this)">x</button></td>`;
   tbody.appendChild(tr);
   recalc();
 }
 function delRow(btn) { btn.closest('tr').remove(); recalc(); }
 
-// ── RECALC ──
+// -- RECALC --
 let discType = 'fixed'; // 'fixed' = ₦ amount, 'pct' = percentage
 
 function toggleDiscType() {
@@ -453,7 +466,7 @@ function recalc() {
     const amt   = qty * price;
     sub += amt;
     const s = tr.querySelector('.row-amt');
-    if(s) s.textContent = (qty>0&&price>0) ? fmt(amt) : '—';
+    if(s) s.textContent = (qty>0&&price>0) ? fmt(amt) : '-';
   });
   const discVal = parseFloat(document.getElementById('discount').value) || 0;
   const disc    = discType === 'pct' ? (sub * discVal / 100) : discVal;
@@ -465,7 +478,7 @@ function recalc() {
   calcBalance();
 }
 
-// ── BALANCE LOGIC ──
+// -- BALANCE LOGIC --
 function calcBalance() {
   const grand    = parseFmt(document.getElementById('grandTotal').textContent);
   const prevPaid = getPrevPaidTotal();
@@ -498,7 +511,7 @@ function calcBalance() {
     // Exactly paid
     balanceRow.style.display = 'none';
     changeRow.style.display  = 'none';
-    payStatus.textContent    = '✓ Fully Paid';
+    payStatus.textContent    = 'ok Fully Paid';
     payStatus.style.background = 'rgba(42,122,58,0.12)';
     payStatus.style.color    = 'var(--green)';
   } else {
@@ -506,7 +519,7 @@ function calcBalance() {
     balanceRow.style.display = 'none';
     changeRow.style.display  = 'block';
     document.getElementById('changeAmt').textContent = fmt(diff);
-    payStatus.textContent    = '✓ Fully Paid';
+    payStatus.textContent    = 'ok Fully Paid';
     payStatus.style.background = 'rgba(42,122,58,0.12)';
     payStatus.style.color    = 'var(--green)';
   }
@@ -520,13 +533,13 @@ function getPrevPaidTotal() {
   return total;
 }
 
-// ── PAYMENT METHOD ──
+// -- PAYMENT METHOD --
 function togglePay(el) {
   document.querySelectorAll('.pay-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ── COLLECT RECEIPT DATA ──
+// -- COLLECT RECEIPT DATA --
 function collectData() {
   const items = [];
   document.querySelectorAll('#itemsBody tr').forEach(tr => {
@@ -576,14 +589,14 @@ function collectData() {
   };
 }
 
-// ── SAVE RECEIPT ──
+// -- SAVE RECEIPT --
 async function saveReceipt() {
   const data = collectData();
   if(!data.rcptNum) { alert('Please enter a receipt number first.'); return; }
 
   const btn = document.querySelector('[onclick="saveReceipt()"]');
   const orig = btn ? btn.textContent : '';
-  if(btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
+  if(btn) { btn.textContent = 'Saving... Saving...'; btn.disabled = true; }
 
   try {
     data._docId  = currentDocId || null;
@@ -591,14 +604,14 @@ async function saveReceipt() {
     const docId  = await saveOne(data);
     currentDocId = docId;
     await renderRecordsList();
-    if(btn) { btn.textContent = '✓ Saved!'; setTimeout(()=>{ btn.textContent=orig; btn.disabled=false; }, 2000); }
+    if(btn) { btn.textContent = 'ok Saved!'; setTimeout(()=>{ btn.textContent=orig; btn.disabled=false; }, 2000); }
   } catch(e) {
     alert('Error saving. Check internet connection and try again.');
     if(btn) { btn.textContent = orig; btn.disabled = false; }
   }
 }
 
-// ── LOAD RECEIPT ──
+// -- LOAD RECEIPT --
 async function loadReceipt(docId) {
   try {
     const doc  = await db.collection(RECEIPTS_COL).doc(docId).get();
@@ -640,9 +653,9 @@ async function loadReceipt(docId) {
     c.classList.toggle('active', c.textContent === data.payMethod);
   });
 
-  // Payment history — show all EXCEPT the last entry (that becomes "this payment")
+  // Payment history - show all EXCEPT the last entry (that becomes "this payment")
   const history = data.payHistory || [];
-  // The last entry is the most recent payment — put it into the "amount paid" field
+  // The last entry is the most recent payment - put it into the "amount paid" field
   // All previous entries go into the history panel
   const prevPayments = history.slice(0, -1);
   const lastPayment  = history[history.length - 1];
@@ -690,7 +703,7 @@ function renderPayHistory(payments) {
   prevTotal.textContent = fmt(total);
 }
 
-// ── NEW RECEIPT ──
+// -- NEW RECEIPT --
 async function newReceipt() {
   if(!confirm('Start a new receipt? Unsaved changes will be lost.')) return;
   currentId    = null;
@@ -713,7 +726,7 @@ async function newReceipt() {
   recalc();
 }
 
-// ── RECORDS LIST ──
+// -- RECORDS LIST --
 function toggleRecords() {
   const panel = document.getElementById('recordsPanel');
   panel.classList.toggle('open');
@@ -735,14 +748,14 @@ async function renderRecordsList() {
     const statusText = isPaid ? 'Fully Paid' : 'Part Payment';
     return `<div class="record-item" onclick="loadReceipt('${r._docId}')">
       <div class="rec-left">
-        <div class="rec-num">${r.rcptNum} ${r.custName ? '· '+r.custName : ''}</div>
+        <div class="rec-num">${r.rcptNum} ${r.custName ? '. '+r.custName : ''}</div>
         <div class="rec-customer">${r.rcptDate || ''}</div>
       </div>
       <div class="rec-right">
         <div class="rec-total">${fmt(r.grand)}</div>
         <div class="rec-status ${statusCls}">${statusText}</div>
       </div>
-      <button class="rec-del" onclick="event.stopPropagation();deleteReceipt('${r._docId}')" title="Delete">×</button>
+      <button class="rec-del" onclick="event.stopPropagation();deleteReceipt('${r._docId}')" title="Delete">x</button>
     </div>`;
   }).join('');
 }
@@ -785,12 +798,12 @@ async function deleteReceipt(docId) {
 </div>
 
 <script>
-// ── EMAILJS KEYS (config only — stored in localStorage, not receipts) ──
+// -- EMAILJS KEYS (config only - stored in localStorage, not receipts) --
 function saveEmailJSKeys() {
   localStorage.setItem('ejs_service',    document.getElementById('ejsService').value.trim());
   localStorage.setItem('ejs_template',   document.getElementById('ejsTemplate').value.trim());
   localStorage.setItem('ejs_public_key', document.getElementById('ejsPublicKey').value.trim());
-  alert('✓ EmailJS keys saved on this device.');
+  alert('ok EmailJS keys saved on this device.');
 }
 function loadEmailJSKeys() {
   document.getElementById('ejsService').value    = localStorage.getItem('ejs_service')    || '';
@@ -798,7 +811,7 @@ function loadEmailJSKeys() {
   document.getElementById('ejsPublicKey').value  = localStorage.getItem('ejs_public_key') || '';
 }
 
-// ── BUILD RECEIPT SUMMARY TEXT ──
+// -- BUILD RECEIPT SUMMARY TEXT --
 function buildReceiptSummary() {
   const rcptNum  = document.getElementById('rcptNum').value      || 'N/A';
   const rcptDate = document.getElementById('rcptDate').value     || '';
@@ -814,7 +827,7 @@ function buildReceiptSummary() {
     const qty   = tr.querySelector('.item-qty')?.value          || '';
     const price = tr.querySelector('.item-price')?.value        || '';
     const amt   = tr.querySelector('.row-amt')?.textContent     || '';
-    if(desc) items += `  • ${desc}  ×${qty}  @ ₦${price}  = ${amt}
+    if(desc) items += `  - ${desc}  x${qty}  @ ₦${price}  = ${amt}
 `;
   });
 
@@ -834,7 +847,7 @@ function buildReceiptSummary() {
   };
 }
 
-// ── EMAIL ──
+// -- EMAIL --
 function sendEmail() {
   const custContact = document.getElementById('custContact').value || '';
   // Pre-fill email if contact looks like an email
@@ -855,11 +868,7 @@ async function doSendEmail() {
 
   if(!toEmail)    { alert('Please enter the customer email address.'); return; }
   if(!serviceId || !templateId || !publicKey) {
-    alert('EmailJS not configured yet.
-
-Tap "⚙ EmailJS Settings" above and enter your Service ID, Template ID, and Public Key.
-
-Get them free at emailjs.com'); return;
+    alert('EmailJS not configured yet. Tap EmailJS Settings and enter your Service ID, Template ID and Public Key from emailjs.com'); return;
   }
 
   const btn = document.getElementById('sendEmailBtn');
@@ -872,33 +881,30 @@ Get them free at emailjs.com'); return;
     params.subject  = subject;
     await emailjs.send(serviceId, templateId, params);
     closeEmailModal();
-    alert('✓ Receipt sent to ' + toEmail);
+    alert('ok Receipt sent to ' + toEmail);
   } catch(err) {
     console.error(err);
-    alert('Failed to send email.
-
-Check your EmailJS keys and make sure the template exists.
-Error: ' + (err.text || err.message || err));
+    alert('Failed to send email.  Check your EmailJS keys and make sure the template exists. Error: ' + (err.text || err.message || err));
   } finally {
-    btn.textContent = 'Send Receipt ✉'; btn.disabled = false;
+    btn.textContent = 'Send Receipt Email'; btn.disabled = false;
   }
 }
 
-// ── WHATSAPP ──
+// -- WHATSAPP --
 function sendWhatsApp() {
   const custContact = document.getElementById('custContact').value || '';
-  // Extract phone — strip spaces, dashes, +234 → 0xxx or keep as-is
+  // Extract phone - strip spaces, dashes
   let phone = custContact.replace(/[\s\-()]/g, '');
   // If it looks like an email, clear it
   if(phone.includes('@')) phone = '';
-  // Normalise Nigerian numbers: 08xx → 2348xx
+  // Normalise Nigerian numbers: 08xx - 2348xx
   if(phone.startsWith('0') && phone.length >= 10) {
     phone = '234' + phone.slice(1);
   }
 
   const d = buildReceiptSummary();
   const msg =
-`🧾 *HEMS & GENTS RECEIPT*
+` *HEMS & GENTS RECEIPT*
 Receipt No: ${d.receipt_num}
 Date: ${d.receipt_date}
 
@@ -907,8 +913,7 @@ ${d.items_list}
 Subtotal: ${d.subtotal}
 *TOTAL: ${d.grand_total}*
 Payment: ${d.pay_method || 'N/A'}
-${d.notes ? '
-Note: ' + d.notes : ''}
+${d.notes ? 'Note: ' + d.notes : ''}
 
 _Thank you for shopping with Hems & Gents!_
 hemsgents@gmail.com | 0814 841 3093`;
