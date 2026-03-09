@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="pragma" content="no-cache"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Hems&Gents — Receipt</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -14,25 +16,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   /* ── PRINT: remove browser header/footer ── */
-  .btn-wa    { background:#25D366; color:#fff; border:none; }
-  .btn-wa:hover { background:#1ebe5d; }
-  .btn-email { background:#1a73e8; color:#fff; border:none; }
-  .btn-email:hover { background:#1558b0; }
-
-  /* ── EMAIL CONFIG MODAL ── */
-  .modal-bg { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:none;align-items:center;justify-content:center; }
-  .modal-bg.open { display:flex; }
-  .modal-box { background:#fff;border-radius:8px;padding:28px 24px;width:90%;max-width:420px;font-family:'Jost',sans-serif; }
-  .modal-title { font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B2020;margin-bottom:18px; }
-  .modal-inp { width:100%;border:1px solid #ddd;border-radius:4px;padding:10px 12px;font-size:13px;margin-bottom:10px;outline:none;font-family:'Jost',sans-serif; }
-  .modal-inp:focus { border-color:#8B2020; }
-  .modal-note { font-size:11px;color:#999;margin-bottom:16px;line-height:1.6; }
-  .modal-btns { display:flex;gap:8px;justify-content:flex-end; }
-  .modal-btn { padding:9px 18px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.08em;cursor:pointer;border:none; }
-  .modal-cancel { background:#f0f0f0;color:#666; }
-  .modal-send { background:#8B2020;color:#fff; }
-  .modal-send:hover { background:#a02626; }
-
   @page { margin: 0; size: auto; }
   @media print {
     html, body { margin:0; padding:0; background:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -174,29 +157,26 @@
 
   .torn-bottom { width:100%; height:16px; background:var(--white);
     clip-path:polygon(0% 0%,2% 70%,4% 20%,6% 80%,8% 30%,10% 85%,12% 35%,14% 75%,16% 25%,18% 90%,20% 40%,22% 70%,24% 15%,26% 80%,28% 30%,30% 85%,32% 35%,34% 70%,36% 20%,38% 80%,40% 25%,42% 90%,44% 40%,46% 75%,48% 20%,50% 85%,52% 35%,54% 70%,56% 20%,58% 80%,60% 30%,62% 85%,64% 35%,66% 75%,68% 25%,70% 90%,72% 40%,74% 70%,76% 20%,78% 80%,80% 30%,82% 85%,84% 35%,86% 70%,88% 20%,90% 80%,92% 30%,94% 75%,96% 25%,98% 85%,100% 40%,100% 0%); }
+
+  .btn-wa    { background:#25D366 !important; color:#fff !important; border:none !important; }
+  .btn-email { background:#1a73e8 !important; color:#fff !important; border:none !important; }
+  .discount-type-btn { font-size:11px; font-weight:700; padding:3px 9px; border:1px solid #d4a0a0; border-radius:4px; background:none; color:#8B2020; cursor:pointer; letter-spacing:.04em; }
 </style>
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <!-- Firebase Compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
 <!-- TOOLBAR -->
 <div class="toolbar no-print">
-  <div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;justify-content:space-between;">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-charcoal" onclick="toggleRecords()">📂 Saved</button>
-      <button class="btn btn-ghost" onclick="newReceipt()">+ New</button>
-      <button class="btn btn-ghost" onclick="saveReceipt()">💾 Save</button>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-wa" onclick="sendWhatsApp()">💬 WhatsApp</button>
-      <button class="btn btn-email" onclick="sendEmail()">✉ Email</button>
-      <button class="btn btn-accent" onclick="window.print()">⬇ Print</button>
-    </div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-charcoal" onclick="toggleRecords()">📂 Saved Receipts</button>
+    <button class="btn btn-ghost" onclick="newReceipt()">+ New Receipt</button>
+  </div>
+  <div class="toolbar-right" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-ghost"  onclick="saveReceipt()">Save</button>
+    <button class="btn btn-wa"     onclick="sendWhatsApp()">WhatsApp</button>
+    <button class="btn btn-email"  onclick="sendEmail()">Email</button>
+    <button class="btn btn-accent" onclick="window.print()">Print / PDF</button>
   </div>
 </div>
 
@@ -265,7 +245,7 @@
         <div class="tot-row muted">
           <span>Discount</span>
           <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
-            <button id="discToggle" onclick="toggleDiscType()" style="font-size:11px;font-weight:600;padding:3px 8px;border:1px solid #d4a0a0;border-radius:4px;background:none;color:#8B2020;cursor:pointer;letter-spacing:.04em;">₦</button>
+            <button class="discount-type-btn" id="discToggle" onclick="toggleDiscType()">N</button>
             <input class="tot-in" type="number" id="discount" placeholder="0.00" min="0" oninput="recalc()" />
           </span>
         </div>
@@ -355,14 +335,32 @@
 </div>
 
 <script>
+/* ============================================================
+   HEMS & GENTS RECEIPT — CLEAN REWRITE
+   All functions are global (no wrapping blocks)
+   Firebase is fully isolated from UI
+   ============================================================ */
 
-// -- STORAGE KEY --
-// -- FIREBASE CONFIG (same project as admin dashboard) --
-// Ensure Firebase is loaded before init
+// ── GLOBALS ──
+var db         = null;
+var discType   = 'fixed';
+var currentDocId = null;
+var currentId    = null;
+var RECEIPTS_COL = 'receipts';
+
+// ── FORMAT ──
+function fmt(n) {
+  return '\u20a6' + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function parseFmt(s) {
+  return parseFloat((s || '').replace(/[\u20a6,]/g, '')) || 0;
+}
+
+// ── FIREBASE (isolated — never blocks UI) ──
 function initFirebase() {
+  if (typeof firebase === 'undefined') { setTimeout(initFirebase, 300); return; }
+  if (db) return;
   try {
-    if(typeof firebase === 'undefined') { setTimeout(initFirebase, 200); return; }
-    if(db) return; // already initialized
     firebase.initializeApp({
       apiKey: "AIzaSyD9MrD0nof1O4iMEL6kDquZLXZepK19F6c",
       authDomain: "hems-and-gents.firebaseapp.com",
@@ -372,225 +370,189 @@ function initFirebase() {
       appId: "1:124283920026:web:d63e0cae91543c42b70923"
     });
     db = firebase.firestore();
-  } catch(e) { setTimeout(initFirebase, 500); }
+  } catch (e) {
+    setTimeout(initFirebase, 1000);
+  }
 }
-// Start Firebase init after page loads - completely non-blocking
-window.addEventListener('load', function() { setTimeout(initFirebase, 100); });
-let db = null;
-const RECEIPTS_COL = 'receipts';
+window.addEventListener('load', function () { setTimeout(initFirebase, 200); });
 
-// -- FIRESTORE HELPERS --
-async function loadAll() {
-  try {
-    const snap = await db.collection(RECEIPTS_COL).orderBy('savedAt','desc').get();
-    return snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
-  } catch(e) { console.error('loadAll error:', e); return []; }
-}
-
-async function saveOne(data) {
-  try {
-    if(data._docId) {
-      await db.collection(RECEIPTS_COL).doc(data._docId).set(data);
-      return data._docId;
-    } else {
-      const ref = await db.collection(RECEIPTS_COL).add(data);
-      return ref.id;
-    }
-  } catch(e) { console.error('saveOne error:', e); throw e; }
+// ── FIRESTORE HELPERS ──
+function loadAll() {
+  if (!db) return Promise.resolve([]);
+  return db.collection(RECEIPTS_COL).orderBy('savedAt', 'desc').get()
+    .then(function (snap) {
+      return snap.docs.map(function (d) {
+        var obj = d.data();
+        obj._docId = d.id;
+        return obj;
+      });
+    })
+    .catch(function () { return []; });
 }
 
-async function deleteOne(docId) {
-  try {
-    await db.collection(RECEIPTS_COL).doc(docId).delete();
-  } catch(e) { console.error('deleteOne error:', e); throw e; }
+function saveOne(data) {
+  if (!db) return Promise.reject(new Error('Firebase not ready'));
+  if (data._docId) {
+    return db.collection(RECEIPTS_COL).doc(data._docId).set(data)
+      .then(function () { return data._docId; });
+  }
+  return db.collection(RECEIPTS_COL).add(data)
+    .then(function (ref) { return ref.id; });
 }
 
-// -- FORMAT --
-function fmt(n) {
-  return '₦' + Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+function deleteOne(docId) {
+  if (!db) return Promise.reject(new Error('Firebase not ready'));
+  return db.collection(RECEIPTS_COL).doc(docId).delete();
 }
-function parseFmt(s) {
-  return parseFloat((s||'').replace(/[₦,]/g,'')) || 0;
-}
-
-// -- INIT --
-let currentId  = null; // Firestore doc ID of receipt being edited
-let currentDocId = null;
-
-// -- INIT --
-// Initialize UI immediately - no async blocking
-document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'});
-document.getElementById('rcptNum').value = 'RCP-001';
-addRow(); addRow(); addRow();
-// Update receipt number once Firebase is ready
-setTimeout(function() {
-  genReceiptNum().then(function(num) {
-    if(document.getElementById('rcptNum').value === 'RCP-001') {
-      document.getElementById('rcptNum').value = num;
-    }
-  }).catch(function(){});
-}, 2000);
 
 function genReceiptNum() {
-  // Sync fallback - Firebase may not be ready yet on page load
-  if(db) {
-    return db.collection(RECEIPTS_COL).get()
-      .then(function(snap) { return 'RCP-' + String(snap.size + 1).padStart(3,'0'); })
-      .catch(function() { return 'RCP-' + String(Date.now()).slice(-4); });
-  }
-  return Promise.resolve('RCP-001');
+  if (!db) return Promise.resolve('RCP-001');
+  return db.collection(RECEIPTS_COL).get()
+    .then(function (snap) {
+      return 'RCP-' + String(snap.size + 1).padStart(3, '0');
+    })
+    .catch(function () {
+      return 'RCP-' + String(Date.now()).slice(-4);
+    });
 }
 
-// -- ITEMS --
+// ── ITEMS ──
 function addRow() {
-  const tbody = document.getElementById('itemsBody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td class="col-desc"><input type="text" placeholder="Item description" /></td>
-    <td class="col-qty td-r"><input type="number" value="1" class="item-qty" min="0" oninput="recalc()" /></td>
-    <td class="col-price td-r"><input type="number" placeholder="0.00" class="item-price" min="0" step="0.01" oninput="recalc()" onblur="recalc()" /></td>
-    <td class="col-amt td-r"><span class="row-amt">-</span></td>
-    <td class="col-del no-print"><button class="del-btn" onclick="delRow(this)">x</button></td>`;
+  var tbody = document.getElementById('itemsBody');
+  var tr    = document.createElement('tr');
+  tr.innerHTML =
+    '<td class="col-desc"><input type="text" placeholder="Item description" /></td>' +
+    '<td class="col-qty td-r"><input type="number" value="1" class="item-qty" min="0" /></td>' +
+    '<td class="col-price td-r"><input type="number" placeholder="0.00" class="item-price" min="0" step="0.01" /></td>' +
+    '<td class="col-amt td-r"><span class="row-amt">-</span></td>' +
+    '<td class="col-del no-print"><button class="del-btn" onclick="delRow(this)">x</button></td>';
   tbody.appendChild(tr);
   recalc();
 }
-function delRow(btn) { btn.closest('tr').remove(); recalc(); }
 
-// Event delegation - catches ALL input changes on the items table reliably
-document.addEventListener('DOMContentLoaded', function() {
-  var tbody = document.getElementById('itemsBody');
-  if(tbody) {
-    tbody.addEventListener('input', function() { recalc(); });
-    tbody.addEventListener('change', function() { recalc(); });
-  }
-  // Also recalc when discount or tax changes
-  var disc = document.getElementById('discount');
-  var tax  = document.getElementById('taxRate');
-  if(disc) disc.addEventListener('input', recalc);
-  if(tax)  tax.addEventListener('input', recalc);
-});
-
-// -- RECALC --
-var discType = 'fixed'; // 'fixed' = ₦ amount, 'pct' = percentage
-
-function toggleDiscType() {
-  discType = discType === 'fixed' ? 'pct' : 'fixed';
-  const btn = document.getElementById('discToggle');
-  btn.textContent = discType === 'fixed' ? '₦' : '%';
-  document.getElementById('discount').placeholder = discType === 'fixed' ? '0.00' : '0';
+function delRow(btn) {
+  btn.closest('tr').remove();
   recalc();
 }
 
-window.recalc = function recalc() {
-  let sub = 0;
-  document.querySelectorAll('#itemsBody tr').forEach(tr => {
-    const qty   = parseFloat(tr.querySelector('.item-qty')?.value)   || 0;
-    const price = parseFloat(tr.querySelector('.item-price')?.value) || 0;
-    const amt   = qty * price;
+// ── RECALC (global, no wrapper) ──
+function recalc() {
+  var sub = 0;
+  var rows = document.querySelectorAll('#itemsBody tr');
+  rows.forEach(function (tr) {
+    var qtyEl   = tr.querySelector('.item-qty');
+    var priceEl = tr.querySelector('.item-price');
+    var qty     = parseFloat(qtyEl ? qtyEl.value : 0)   || 0;
+    var price   = parseFloat(priceEl ? priceEl.value : 0) || 0;
+    var amt     = qty * price;
     sub += amt;
-    const s = tr.querySelector('.row-amt');
-    if(s) s.textContent = (qty>0&&price>0) ? fmt(amt) : '-';
+    var s = tr.querySelector('.row-amt');
+    if (s) s.textContent = (qty > 0 && price > 0) ? fmt(amt) : '-';
   });
-  const discVal = parseFloat(document.getElementById('discount').value) || 0;
-  const disc    = discType === 'pct' ? (sub * discVal / 100) : discVal;
-  const tax     = parseFloat(document.getElementById('taxRate').value)  || 0;
-  const after   = Math.max(0, sub - disc);
-  const grand = after + (after * tax / 100);
+  var discVal = parseFloat(document.getElementById('discount').value) || 0;
+  var disc    = (discType === 'pct') ? (sub * discVal / 100) : discVal;
+  var tax     = parseFloat(document.getElementById('taxRate').value)  || 0;
+  var after   = Math.max(0, sub - disc);
+  var grand   = after + (after * tax / 100);
   document.getElementById('subtotal').textContent   = fmt(sub);
   document.getElementById('grandTotal').textContent = fmt(grand);
   calcBalance();
 }
 
-// -- BALANCE LOGIC --
+// ── BALANCE ──
 function calcBalance() {
-  const grand    = parseFmt(document.getElementById('grandTotal').textContent);
-  const prevPaid = getPrevPaidTotal();
-  const paid     = parseFloat(document.getElementById('amtPaid').value) || 0;
-  const totalPaid = prevPaid + paid;
-  const diff     = totalPaid - grand;
+  var grand      = parseFmt(document.getElementById('grandTotal').textContent);
+  var prevPaid   = getPrevPaidTotal();
+  var paid       = parseFloat(document.getElementById('amtPaid').value) || 0;
+  var totalPaid  = prevPaid + paid;
+  var diff       = totalPaid - grand;
+  var balRow     = document.getElementById('balanceRow');
+  var chgRow     = document.getElementById('changeRow');
+  var payStatus  = document.getElementById('payStatus');
 
-  const balanceRow = document.getElementById('balanceRow');
-  const changeRow  = document.getElementById('changeRow');
-  const payStatus  = document.getElementById('payStatus');
-
-  if(paid <= 0) {
-    balanceRow.style.display = 'none';
-    changeRow.style.display  = 'none';
-    payStatus.textContent    = 'Enter amount paid';
+  if (paid <= 0) {
+    balRow.style.display = 'none';
+    chgRow.style.display = 'none';
+    payStatus.textContent = 'Enter amount paid';
     payStatus.style.background = 'rgba(200,200,200,0.1)';
-    payStatus.style.color    = '#aaa';
+    payStatus.style.color = '#aaa';
     return;
   }
-
-  if(diff < -0.005) {
-    // Still owes money
-    balanceRow.style.display = 'block';
-    changeRow.style.display  = 'none';
+  if (diff < -0.005) {
+    balRow.style.display = 'block';
+    chgRow.style.display = 'none';
     document.getElementById('balanceAmt').textContent = fmt(Math.abs(diff));
-    payStatus.textContent    = 'Part Payment';
+    payStatus.textContent = 'Part Payment';
     payStatus.style.background = 'rgba(139,32,32,0.12)';
-    payStatus.style.color    = 'var(--accent)';
-  } else if(diff >= -0.005 && diff < 0.005) {
-    // Exactly paid
-    balanceRow.style.display = 'none';
-    changeRow.style.display  = 'none';
-    payStatus.textContent    = 'ok Fully Paid';
+    payStatus.style.color = 'var(--accent)';
+  } else if (diff < 0.005) {
+    balRow.style.display = 'none';
+    chgRow.style.display = 'none';
+    payStatus.textContent = 'Fully Paid';
     payStatus.style.background = 'rgba(42,122,58,0.12)';
-    payStatus.style.color    = 'var(--green)';
+    payStatus.style.color = 'var(--green)';
   } else {
-    // Overpaid
-    balanceRow.style.display = 'none';
-    changeRow.style.display  = 'block';
+    balRow.style.display = 'none';
+    chgRow.style.display = 'block';
     document.getElementById('changeAmt').textContent = fmt(diff);
-    payStatus.textContent    = 'ok Fully Paid';
+    payStatus.textContent = 'Fully Paid';
     payStatus.style.background = 'rgba(42,122,58,0.12)';
-    payStatus.style.color    = 'var(--green)';
+    payStatus.style.color = 'var(--green)';
   }
 }
 
 function getPrevPaidTotal() {
-  let total = 0;
-  document.querySelectorAll('.pay-hist-amt').forEach(el => {
+  var total = 0;
+  document.querySelectorAll('.pay-hist-amt').forEach(function (el) {
     total += parseFmt(el.textContent);
   });
   return total;
 }
 
-// -- PAYMENT METHOD --
+// ── DISCOUNT TOGGLE ──
+function toggleDiscType() {
+  discType = (discType === 'fixed') ? 'pct' : 'fixed';
+  var btn = document.getElementById('discToggle');
+  if (btn) btn.textContent = (discType === 'fixed') ? 'N' : '%';
+  var inp = document.getElementById('discount');
+  if (inp) inp.placeholder = (discType === 'fixed') ? '0.00' : '0';
+  recalc();
+}
+
+// ── PAYMENT METHOD ──
 function togglePay(el) {
-  document.querySelectorAll('.pay-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.pay-chip').forEach(function (c) { c.classList.remove('active'); });
   el.classList.add('active');
 }
 
-// -- COLLECT RECEIPT DATA --
+// ── COLLECT DATA ──
 function collectData() {
-  const items = [];
-  document.querySelectorAll('#itemsBody tr').forEach(tr => {
-    const desc  = tr.querySelector('input[type="text"]')?.value || '';
-    const qty   = tr.querySelector('.item-qty')?.value || '';
-    const price = tr.querySelector('.item-price')?.value || '';
-    if(desc || qty || price) items.push({desc, qty, price});
+  var items = [];
+  document.querySelectorAll('#itemsBody tr').forEach(function (tr) {
+    var desc  = (tr.querySelector('input[type="text"]') || {}).value  || '';
+    var qty   = (tr.querySelector('.item-qty')          || {}).value  || '';
+    var price = (tr.querySelector('.item-price')        || {}).value  || '';
+    if (desc || qty || price) items.push({ desc: desc, qty: qty, price: price });
   });
 
-  const prevHistory = [];
-  document.querySelectorAll('.pay-hist-row').forEach(row => {
-    const date = row.querySelector('.pay-hist-date')?.textContent || '';
-    const ref  = row.querySelector('.pay-hist-ref')?.textContent  || '';
-    const amt  = parseFmt(row.querySelector('.pay-hist-amt')?.textContent || '0');
-    prevHistory.push({date, ref, amt});
+  var prevHistory = [];
+  document.querySelectorAll('.pay-hist-row').forEach(function (row) {
+    var date = (row.querySelector('.pay-hist-date') || {}).textContent || '';
+    var ref  = (row.querySelector('.pay-hist-ref')  || {}).textContent || '';
+    var amt  = parseFmt((row.querySelector('.pay-hist-amt') || {}).textContent || '0');
+    prevHistory.push({ date: date, ref: ref, amt: amt });
   });
 
-  const paid    = parseFloat(document.getElementById('amtPaid').value) || 0;
-  const rcptDate = document.getElementById('rcptDate').value;
-  const payRef  = document.getElementById('payRef').value;
-  if(paid > 0) {
-    prevHistory.push({date: rcptDate, ref: payRef, amt: paid});
-  }
+  var rcptDate  = document.getElementById('rcptDate').value;
+  var paid      = parseFloat(document.getElementById('amtPaid').value) || 0;
+  var payRef    = document.getElementById('payRef').value;
+  if (paid > 0) prevHistory.push({ date: rcptDate, ref: payRef, amt: paid });
 
-  const activeChip = document.querySelector('.pay-chip.active');
+  var activeChip = document.querySelector('.pay-chip.active');
 
   return {
-    id:           currentId  || Date.now(),
+    id:           currentId || Date.now(),
+    _docId:       currentDocId || null,
     rcptNum:      document.getElementById('rcptNum').value,
     rcptDate:     rcptDate,
     servedBy:     document.getElementById('servedBy').value,
@@ -599,7 +561,7 @@ function collectData() {
     custContact:  document.getElementById('custContact').value,
     storeAddress: document.getElementById('storeAddress').value,
     storeContact: document.getElementById('storeContact').value,
-    items,
+    items:        items,
     discount:     document.getElementById('discount').value,
     discType:     discType,
     taxRate:      document.getElementById('taxRate').value,
@@ -608,346 +570,340 @@ function collectData() {
     payRef:       payRef,
     payHistory:   prevHistory,
     notes:        document.getElementById('receiptNotes').value,
-    savedAt:      new Date().toISOString(),
+    savedAt:      new Date().toISOString()
   };
 }
 
-// -- SAVE RECEIPT --
-async function saveReceipt() {
-  const data = collectData();
-  if(!data.rcptNum) { alert('Please enter a receipt number first.'); return; }
+// ── SAVE ──
+function saveReceipt() {
+  var data = collectData();
+  if (!data.rcptNum) { alert('Please enter a receipt number first.'); return; }
+  var btn = document.querySelector('[onclick="saveReceipt()"]');
+  var orig = btn ? btn.textContent : 'Save';
+  if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
-  const btn = document.querySelector('[onclick="saveReceipt()"]');
-  const orig = btn ? btn.textContent : '';
-  if(btn) { btn.textContent = 'Saving... Saving...'; btn.disabled = true; }
-
-  try {
-    data._docId  = currentDocId || null;
-    data.savedAt = new Date().toISOString();
-    const docId  = await saveOne(data);
-    currentDocId = docId;
-    await renderRecordsList();
-    if(btn) { btn.textContent = 'ok Saved!'; setTimeout(()=>{ btn.textContent=orig; btn.disabled=false; }, 2000); }
-  } catch(e) {
-    alert('Error saving. Check internet connection and try again.');
-    if(btn) { btn.textContent = orig; btn.disabled = false; }
-  }
+  saveOne(data)
+    .then(function (docId) {
+      currentDocId = docId;
+      renderRecordsList();
+      if (btn) {
+        btn.textContent = 'Saved!';
+        setTimeout(function () { btn.textContent = orig; btn.disabled = false; }, 2000);
+      }
+    })
+    .catch(function () {
+      alert('Error saving. Check internet connection.');
+      if (btn) { btn.textContent = orig; btn.disabled = false; }
+    });
 }
 
-// -- LOAD RECEIPT --
-async function loadReceipt(docId) {
-  try {
-    const doc  = await db.collection(RECEIPTS_COL).doc(docId).get();
-    if(!doc.exists) return;
-    const data = { ...doc.data(), _docId: doc.id };
-    currentDocId = doc.id;
-    currentId    = data.id;
+// ── LOAD ──
+function loadReceipt(docId) {
+  db.collection(RECEIPTS_COL).doc(docId).get()
+    .then(function (doc) {
+      if (!doc.exists) return;
+      var data = doc.data();
+      data._docId = doc.id;
+      currentDocId = doc.id;
+      currentId    = data.id;
 
-  document.getElementById('rcptNum').value      = data.rcptNum      || '';
-  document.getElementById('rcptDate').value     = data.rcptDate     || '';
-  document.getElementById('servedBy').value     = data.servedBy     || '';
-  document.getElementById('txnId').value        = data.txnId        || '';
-  document.getElementById('custName').value     = data.custName     || '';
-  document.getElementById('custContact').value  = data.custContact  || '';
-  document.getElementById('storeAddress').value = data.storeAddress || '';
-  document.getElementById('storeContact').value = data.storeContact || '';
-  document.getElementById('discount').value     = data.discount     || '';
-  discType = data.discType || 'fixed';
-  const discBtn = document.getElementById('discToggle');
-  if(discBtn) { discBtn.textContent = discType === 'fixed' ? '₦' : '%'; }
-  document.getElementById('discount').placeholder = discType === 'fixed' ? '0.00' : '0';
-  document.getElementById('taxRate').value      = data.taxRate      || '';
-  document.getElementById('payRef').value       = data.payRef       || '';
-  document.getElementById('receiptNotes').value = data.notes        || '';
+      document.getElementById('rcptNum').value      = data.rcptNum      || '';
+      document.getElementById('rcptDate').value     = data.rcptDate     || '';
+      document.getElementById('servedBy').value     = data.servedBy     || '';
+      document.getElementById('txnId').value        = data.txnId        || '';
+      document.getElementById('custName').value     = data.custName     || '';
+      document.getElementById('custContact').value  = data.custContact  || '';
+      document.getElementById('storeAddress').value = data.storeAddress || '';
+      document.getElementById('storeContact').value = data.storeContact || '';
+      document.getElementById('discount').value     = data.discount     || '';
+      document.getElementById('taxRate').value      = data.taxRate      || '';
+      document.getElementById('payRef').value       = data.payRef       || '';
+      document.getElementById('receiptNotes').value = data.notes        || '';
 
-  // Items
-  document.getElementById('itemsBody').innerHTML = '';
-  (data.items || []).forEach(item => {
-    addRow();
-    const rows = document.querySelectorAll('#itemsBody tr');
-    const tr   = rows[rows.length - 1];
-    tr.querySelector('input[type="text"]').value = item.desc;
-    tr.querySelector('.item-qty').value           = item.qty;
-    tr.querySelector('.item-price').value         = item.price;
-  });
+      discType = data.discType || 'fixed';
+      var dBtn = document.getElementById('discToggle');
+      if (dBtn) dBtn.textContent = (discType === 'fixed') ? 'N' : '%';
 
-  // Payment method
-  document.querySelectorAll('.pay-chip').forEach(c => {
-    c.classList.toggle('active', c.textContent === data.payMethod);
-  });
+      document.getElementById('itemsBody').innerHTML = '';
+      (data.items || []).forEach(function (item) {
+        addRow();
+        var rows = document.querySelectorAll('#itemsBody tr');
+        var tr   = rows[rows.length - 1];
+        tr.querySelector('input[type="text"]').value = item.desc;
+        tr.querySelector('.item-qty').value           = item.qty;
+        tr.querySelector('.item-price').value         = item.price;
+      });
 
-  // Payment history - show all EXCEPT the last entry (that becomes "this payment")
-  const history = data.payHistory || [];
-  // The last entry is the most recent payment - put it into the "amount paid" field
-  // All previous entries go into the history panel
-  const prevPayments = history.slice(0, -1);
-  const lastPayment  = history[history.length - 1];
+      document.querySelectorAll('.pay-chip').forEach(function (c) {
+        c.classList.toggle('active', c.textContent === data.payMethod);
+      });
 
-  renderPayHistory(prevPayments);
-
-  // Set "Amount Paid This Time" to empty so they enter the NEW payment
-  document.getElementById('amtPaid').value = '';
-
-  // But show the last payment amount as a hint if needed
-  // Actually: clear so user enters fresh payment amount
-  recalc();
-
-  // Close panel
-  document.getElementById('recordsPanel').classList.remove('open');
-
-  // Scroll to top of receipt
-  document.getElementById('receipt').scrollIntoView({behavior:'smooth'});
-  } catch(e) { console.error('loadReceipt error:', e); }
+      var history  = data.payHistory || [];
+      var prevPmts = history.slice(0, -1);
+      renderPayHistory(prevPmts);
+      document.getElementById('amtPaid').value = '';
+      recalc();
+      document.getElementById('recordsPanel').classList.remove('open');
+      document.getElementById('receipt').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(function (e) { console.error('loadReceipt error:', e); });
 }
 
 function renderPayHistory(payments) {
-  const wrap = document.getElementById('payHistoryWrap');
-  const list = document.getElementById('payHistory');
-  const prevTotal = document.getElementById('prevPaidTotal');
-
-  if(!payments || payments.length === 0) {
+  var wrap     = document.getElementById('payHistoryWrap');
+  var list     = document.getElementById('payHistory');
+  var prevTotal = document.getElementById('prevPaidTotal');
+  if (!payments || payments.length === 0) {
     wrap.style.display = 'none';
     list.innerHTML = '';
     return;
   }
-
   wrap.style.display = 'block';
-  let total = 0;
-  list.innerHTML = payments.map(p => {
+  var total = 0;
+  list.innerHTML = payments.map(function (p) {
     total += p.amt;
-    return `<div class="pay-hist-row">
-      <div>
-        <div class="pay-hist-date">${p.date}</div>
-        ${p.ref ? `<div class="pay-hist-ref">${p.ref}</div>` : ''}
-      </div>
-      <span class="pay-hist-amt" style="font-weight:600;color:var(--charcoal);">${fmt(p.amt)}</span>
-    </div>`;
+    return '<div class="pay-hist-row">' +
+      '<div><div class="pay-hist-date">' + p.date + '</div>' +
+      (p.ref ? '<div class="pay-hist-ref">' + p.ref + '</div>' : '') +
+      '</div><span class="pay-hist-amt" style="font-weight:600;color:var(--charcoal);">' + fmt(p.amt) + '</span></div>';
   }).join('');
   prevTotal.textContent = fmt(total);
 }
 
-// -- NEW RECEIPT --
-async function newReceipt() {
-  if(!confirm('Start a new receipt? Unsaved changes will be lost.')) return;
+// ── NEW RECEIPT ──
+function newReceipt() {
+  if (!confirm('Start a new receipt? Unsaved changes will be lost.')) return;
   currentId    = null;
   currentDocId = null;
-  document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
-  discType = 'fixed';
-  const discBtn = document.getElementById('discToggle');
-  if(discBtn) { discBtn.textContent = '₦'; }
+  discType     = 'fixed';
+  var dBtn = document.getElementById('discToggle');
+  if (dBtn) dBtn.textContent = 'N';
+
+  document.querySelectorAll('input[type="text"], input[type="number"], textarea')
+    .forEach(function (el) { el.value = ''; });
   document.getElementById('itemsBody').innerHTML = '';
-  document.querySelectorAll('.pay-chip').forEach(c => c.classList.remove('active'));
-  document.getElementById('balanceRow').style.display = 'none';
-  document.getElementById('changeRow').style.display  = 'none';
-  document.getElementById('payHistoryWrap').style.display = 'none';
-  document.getElementById('payStatus').textContent = 'Enter amount paid';
-  document.getElementById('payStatus').style.background = 'rgba(200,200,200,0.1)';
-  document.getElementById('payStatus').style.color = '#aaa';
-  document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG',{year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('rcptNum').value  = await genReceiptNum();
+  document.querySelectorAll('.pay-chip').forEach(function (c) { c.classList.remove('active'); });
+  document.getElementById('balanceRow').style.display      = 'none';
+  document.getElementById('changeRow').style.display       = 'none';
+  document.getElementById('payHistoryWrap').style.display  = 'none';
+  document.getElementById('payStatus').textContent         = 'Enter amount paid';
+  document.getElementById('payStatus').style.background    = 'rgba(200,200,200,0.1)';
+  document.getElementById('payStatus').style.color         = '#aaa';
+  document.getElementById('rcptDate').value = new Date().toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('storeAddress').value = '3, Orelope Street, Tedi, Ojo Lagos, Nigeria';
+  document.getElementById('storeContact').value = 'hemsgents@gmail.com  \u00b7  0814 841 3093';
+
+  genReceiptNum().then(function (num) {
+    document.getElementById('rcptNum').value = num;
+  });
   addRow(); addRow(); addRow();
   recalc();
 }
 
-// -- RECORDS LIST --
+// ── RECORDS ──
 function toggleRecords() {
-  const panel = document.getElementById('recordsPanel');
+  var panel = document.getElementById('recordsPanel');
   panel.classList.toggle('open');
-  if(panel.classList.contains('open')) renderRecordsList();
+  if (panel.classList.contains('open')) renderRecordsList();
 }
 
-async function renderRecordsList() {
-  const list = document.getElementById('recordsList');
-  list.innerHTML = '<div class="no-records" style="color:rgba(240,237,230,0.4);">Loading receipts...</div>';
-  const all = await loadAll();
-  if(all.length === 0) {
-    list.innerHTML = '<div class="no-records">No saved receipts yet.</div>';
+function renderRecordsList() {
+  var list = document.getElementById('recordsList');
+  list.innerHTML = '<div class="no-records" style="opacity:.5;">Loading...</div>';
+  loadAll()
+    .then(function (all) {
+      if (all.length === 0) {
+        list.innerHTML = '<div class="no-records">No saved receipts yet.</div>';
+        return;
+      }
+      list.innerHTML = all.map(function (r) {
+        var totalPaid  = (r.payHistory || []).reduce(function (a, p) { return a + p.amt; }, 0);
+        var isPaid     = totalPaid >= r.grand - 0.005;
+        var statusCls  = isPaid ? 'paid' : 'partial';
+        var statusText = isPaid ? 'Fully Paid' : 'Part Payment';
+        return '<div class="record-item" onclick="loadReceipt(\'' + r._docId + '\')">' +
+          '<div class="rec-left">' +
+          '<div class="rec-num">' + r.rcptNum + (r.custName ? ' \u00b7 ' + r.custName : '') + '</div>' +
+          '<div class="rec-customer">' + (r.rcptDate || '') + '</div>' +
+          '</div><div class="rec-right">' +
+          '<div class="rec-total">' + fmt(r.grand) + '</div>' +
+          '<div class="rec-status ' + statusCls + '">' + statusText + '</div>' +
+          '</div>' +
+          '<button class="rec-del" onclick="event.stopPropagation();deleteReceipt(\'' + r._docId + '\')" title="Delete">x</button>' +
+          '</div>';
+      }).join('');
+    });
+}
+
+function deleteReceipt(docId) {
+  if (!confirm('Delete this receipt? This cannot be undone.')) return;
+  deleteOne(docId)
+    .then(function () { renderRecordsList(); })
+    .catch(function () { alert('Error deleting. Check internet connection.'); });
+}
+
+// ── WHATSAPP ──
+function buildReceiptText() {
+  var rcptNum  = document.getElementById('rcptNum').value  || 'N/A';
+  var rcptDate = document.getElementById('rcptDate').value || '';
+  var custName = document.getElementById('custName').value || 'Customer';
+  var grand    = document.getElementById('grandTotal').textContent || '\u20a60.00';
+  var payChip  = document.querySelector('.pay-chip.active');
+  var payMethod = payChip ? payChip.textContent : '';
+  var notes    = document.getElementById('receiptNotes').value || '';
+
+  var itemLines = '';
+  document.querySelectorAll('#itemsBody tr').forEach(function (tr) {
+    var desc  = (tr.querySelector('input[type="text"]') || {}).value  || '';
+    var qty   = (tr.querySelector('.item-qty')          || {}).value  || '';
+    var price = (tr.querySelector('.item-price')        || {}).value  || '';
+    var amt   = (tr.querySelector('.row-amt')           || {}).textContent || '';
+    if (desc) itemLines += '  - ' + desc + ' x' + qty + ' = ' + amt + '\n';
+  });
+
+  return {
+    rcptNum:  rcptNum,
+    rcptDate: rcptDate,
+    custName: custName,
+    grand:    grand,
+    payMethod: payMethod,
+    notes:    notes,
+    itemLines: itemLines,
+    sub:      document.getElementById('subtotal').textContent || '\u20a60.00'
+  };
+}
+
+function sendWhatsApp() {
+  var d = buildReceiptText();
+  var contact = document.getElementById('custContact').value || '';
+  var phone = contact.replace(/[\s\-\(\)]/g, '');
+  if (phone.indexOf('@') !== -1) phone = '';
+  if (phone.charAt(0) === '0' && phone.length >= 10) phone = '234' + phone.slice(1);
+
+  var msg = 'HEMS & GENTS RECEIPT\n' +
+    'Receipt: ' + d.rcptNum + '\n' +
+    'Date: ' + d.rcptDate + '\n\n' +
+    'Items:\n' + d.itemLines +
+    'Subtotal: ' + d.sub + '\n' +
+    'TOTAL: ' + d.grand + '\n' +
+    'Payment: ' + (d.payMethod || 'N/A') + '\n' +
+    (d.notes ? 'Note: ' + d.notes + '\n' : '') +
+    '\nThank you for shopping with Hems & Gents!\n' +
+    'hemsgents@gmail.com | 0814 841 3093';
+
+  var url = phone
+    ? 'https://wa.me/' + phone + '?text=' + encodeURIComponent(msg)
+    : 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+// ── EMAIL (EmailJS) ──
+function sendEmail() {
+  var contact = document.getElementById('custContact').value || '';
+  var emailGuess = (contact.indexOf('@') !== -1) ? contact : '';
+  document.getElementById('emailTo').value = emailGuess;
+  loadEJSKeys();
+  document.getElementById('emailModal').style.display = 'flex';
+}
+function closeEmailModal() {
+  document.getElementById('emailModal').style.display = 'none';
+}
+function saveEJSKeys() {
+  localStorage.setItem('ejs_service',    document.getElementById('ejsService').value.trim());
+  localStorage.setItem('ejs_template',   document.getElementById('ejsTemplate').value.trim());
+  localStorage.setItem('ejs_public_key', document.getElementById('ejsPubKey').value.trim());
+  alert('EmailJS keys saved on this device.');
+}
+function loadEJSKeys() {
+  document.getElementById('ejsService').value  = localStorage.getItem('ejs_service')    || '';
+  document.getElementById('ejsTemplate').value = localStorage.getItem('ejs_template')   || '';
+  document.getElementById('ejsPubKey').value   = localStorage.getItem('ejs_public_key') || '';
+}
+function doSendEmail() {
+  var toEmail    = document.getElementById('emailTo').value.trim();
+  var subject    = document.getElementById('emailSubject').value.trim();
+  var serviceId  = localStorage.getItem('ejs_service')    || '';
+  var templateId = localStorage.getItem('ejs_template')   || '';
+  var publicKey  = localStorage.getItem('ejs_public_key') || '';
+  var d = buildReceiptText();
+
+  if (!toEmail) { alert('Enter the customer email address.'); return; }
+  if (!serviceId || !templateId || !publicKey) {
+    alert('EmailJS not configured. Tap EmailJS Settings and enter your keys from emailjs.com');
     return;
   }
-  list.innerHTML = all.map(r => {
-    const totalPaid  = (r.payHistory||[]).reduce((a,p)=>a+p.amt,0);
-    const isPaid     = totalPaid >= r.grand - 0.005;
-    const statusCls  = isPaid ? 'paid' : 'partial';
-    const statusText = isPaid ? 'Fully Paid' : 'Part Payment';
-    return `<div class="record-item" onclick="loadReceipt('${r._docId}')">
-      <div class="rec-left">
-        <div class="rec-num">${r.rcptNum} ${r.custName ? '. '+r.custName : ''}</div>
-        <div class="rec-customer">${r.rcptDate || ''}</div>
-      </div>
-      <div class="rec-right">
-        <div class="rec-total">${fmt(r.grand)}</div>
-        <div class="rec-status ${statusCls}">${statusText}</div>
-      </div>
-      <button class="rec-del" onclick="event.stopPropagation();deleteReceipt('${r._docId}')" title="Delete">x</button>
-    </div>`;
-  }).join('');
+
+  var btn = document.getElementById('sendEmailBtn');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+
+  emailjs.init(publicKey);
+  emailjs.send(serviceId, templateId, {
+    to_email:     toEmail,
+    subject:      subject,
+    to_name:      d.custName,
+    receipt_num:  d.rcptNum,
+    receipt_date: d.rcptDate,
+    items_list:   d.itemLines,
+    subtotal:     d.sub,
+    grand_total:  d.grand,
+    pay_method:   d.payMethod,
+    notes:        d.notes,
+    store_name:   'Hems & Gents',
+    store_email:  'hemsgents@gmail.com',
+    store_phone:  '0814 841 3093'
+  })
+  .then(function () {
+    closeEmailModal();
+    alert('Receipt sent to ' + toEmail);
+  })
+  .catch(function (err) {
+    alert('Failed to send. Check EmailJS keys. Error: ' + (err.text || err.message || ''));
+  })
+  .finally(function () {
+    btn.textContent = 'Send Receipt'; btn.disabled = false;
+  });
 }
 
-async function deleteReceipt(docId) {
-  if(!confirm('Delete this receipt? This cannot be undone.')) return;
-  try {
-    await deleteOne(docId);
-    await renderRecordsList();
-  } catch(e) {
-    alert('Error deleting. Check internet connection.');
-  }
-}
+// ── PAGE INIT (runs immediately — no async blocking) ──
+document.getElementById('rcptDate').value     = new Date().toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' });
+document.getElementById('storeAddress').value = '3, Orelope Street, Tedi, Ojo Lagos, Nigeria';
+document.getElementById('storeContact').value = 'hemsgents@gmail.com  \u00b7  0814 841 3093';
+document.getElementById('rcptNum').value = 'RCP-001';
+addRow(); addRow(); addRow();
+
+// Update receipt number from Firebase once ready (non-blocking)
+setTimeout(function () {
+  genReceiptNum().then(function (num) {
+    var el = document.getElementById('rcptNum');
+    if (el && el.value === 'RCP-001') el.value = num;
+  });
+}, 2500);
+
+// Listen for input on items table
+document.addEventListener('input', function (e) {
+  if (e.target.closest && e.target.closest('#itemsBody')) recalc();
+  if (e.target.id === 'discount' || e.target.id === 'taxRate' || e.target.id === 'amtPaid') recalc();
+});
 </script>
-
 <!-- EMAIL MODAL -->
-<div class="modal-bg" id="emailModal">
-  <div class="modal-box">
-    <div class="modal-title">✉ Send Receipt by Email</div>
-    <input class="modal-inp" id="emailTo" type="email" placeholder="Customer email address" />
-    <input class="modal-inp" id="emailSubject" type="text" placeholder="Subject" value="Your Hems & Gents Receipt" />
-    <div class="modal-note">
-      The receipt summary will be sent to the customer's email.<br>
-      <span style="color:#8B2020;font-weight:600;">First time?</span> Enter your EmailJS keys in Settings below.
-    </div>
-    <!-- EmailJS keys (stored in localStorage for config only) -->
+<div id="emailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:center;justify-content:center;" onclick="if(event.target===this)closeEmailModal()">
+  <div style="background:#fff;border-radius:8px;padding:28px 24px;width:90%;max-width:420px;font-family:'Jost',sans-serif;">
+    <div style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8B2020;margin-bottom:16px;">Send Receipt by Email</div>
+    <input id="emailTo"      type="email" placeholder="Customer email" style="width:100%;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:13px;margin-bottom:8px;font-family:'Jost',sans-serif;" />
+    <input id="emailSubject" type="text"  placeholder="Subject" value="Your Hems & Gents Receipt" style="width:100%;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:13px;margin-bottom:12px;font-family:'Jost',sans-serif;" />
     <details style="margin-bottom:12px;">
-      <summary style="font-size:11px;color:#999;cursor:pointer;margin-bottom:8px;">⚙ EmailJS Settings (tap to configure)</summary>
-      <input class="modal-inp" id="ejsService" placeholder="Service ID (e.g. service_xxxxx)" />
-      <input class="modal-inp" id="ejsTemplate" placeholder="Template ID (e.g. template_xxxxx)" />
-      <input class="modal-inp" id="ejsPublicKey" placeholder="Public Key (from EmailJS dashboard)" />
-      <div class="modal-note">Get these from <strong>emailjs.com</strong> → Your account → Email Services & Templates. Saved locally on this device.</div>
-      <button class="modal-btn modal-send" style="width:100%;margin-bottom:4px;" onclick="saveEmailJSKeys()">Save Keys</button>
+      <summary style="font-size:11px;color:#999;cursor:pointer;margin-bottom:8px;">EmailJS Settings (tap to configure)</summary>
+      <input id="ejsService"  placeholder="Service ID"   style="width:100%;border:1px solid #ddd;border-radius:4px;padding:9px;font-size:12px;margin-bottom:6px;font-family:'Jost',sans-serif;" />
+      <input id="ejsTemplate" placeholder="Template ID"  style="width:100%;border:1px solid #ddd;border-radius:4px;padding:9px;font-size:12px;margin-bottom:6px;font-family:'Jost',sans-serif;" />
+      <input id="ejsPubKey"   placeholder="Public Key"   style="width:100%;border:1px solid #ddd;border-radius:4px;padding:9px;font-size:12px;margin-bottom:6px;font-family:'Jost',sans-serif;" />
+      <button onclick="saveEJSKeys()" style="width:100%;background:#8B2020;color:#fff;border:none;padding:9px;font-size:12px;cursor:pointer;border-radius:4px;">Save Keys</button>
     </details>
-    <div class="modal-btns">
-      <button class="modal-btn modal-cancel" onclick="closeEmailModal()">Cancel</button>
-      <button class="modal-btn modal-send" id="sendEmailBtn" onclick="doSendEmail()">Send Receipt ✉</button>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeEmailModal()" style="padding:9px 18px;background:#f0f0f0;color:#666;border:none;cursor:pointer;border-radius:4px;font-size:12px;">Cancel</button>
+      <button id="sendEmailBtn" onclick="doSendEmail()" style="padding:9px 18px;background:#8B2020;color:#fff;border:none;cursor:pointer;border-radius:4px;font-size:12px;">Send Receipt</button>
     </div>
   </div>
 </div>
 
-<script>
-// -- EMAILJS KEYS (config only - stored in localStorage, not receipts) --
-function saveEmailJSKeys() {
-  localStorage.setItem('ejs_service',    document.getElementById('ejsService').value.trim());
-  localStorage.setItem('ejs_template',   document.getElementById('ejsTemplate').value.trim());
-  localStorage.setItem('ejs_public_key', document.getElementById('ejsPublicKey').value.trim());
-  alert('ok EmailJS keys saved on this device.');
-}
-function loadEmailJSKeys() {
-  document.getElementById('ejsService').value    = localStorage.getItem('ejs_service')    || '';
-  document.getElementById('ejsTemplate').value   = localStorage.getItem('ejs_template')   || '';
-  document.getElementById('ejsPublicKey').value  = localStorage.getItem('ejs_public_key') || '';
-}
-
-// -- BUILD RECEIPT SUMMARY TEXT --
-function buildReceiptSummary() {
-  const rcptNum  = document.getElementById('rcptNum').value      || 'N/A';
-  const rcptDate = document.getElementById('rcptDate').value     || '';
-  const custName = document.getElementById('custName').value     || 'Customer';
-  const servedBy = document.getElementById('servedBy').value     || '';
-  const grand    = document.getElementById('grandTotal').textContent || '₦0.00';
-  const notes    = document.getElementById('receiptNotes').value || '';
-  const payMethod = document.querySelector('.pay-chip.active')?.textContent || '';
-
-  let items = '';
-  document.querySelectorAll('#itemsBody tr').forEach(tr => {
-    const desc  = tr.querySelector('input[type="text"]')?.value || '';
-    const qty   = tr.querySelector('.item-qty')?.value          || '';
-    const price = tr.querySelector('.item-price')?.value        || '';
-    const amt   = tr.querySelector('.row-amt')?.textContent     || '';
-    if(desc) items += `  - ${desc}  x${qty}  @ ₦${price}  = ${amt}
-`;
-  });
-
-  return {
-    to_name:     custName,
-    receipt_num: rcptNum,
-    receipt_date: rcptDate,
-    served_by:   servedBy,
-    items_list:  items || '  (no items)',
-    subtotal:    document.getElementById('subtotal').textContent || '₦0.00',
-    grand_total: grand,
-    pay_method:  payMethod,
-    notes:       notes,
-    store_name:  'Hems & Gents',
-    store_email: 'hemsgents@gmail.com',
-    store_phone: '0814 841 3093',
-  };
-}
-
-// -- EMAIL --
-function sendEmail() {
-  const custContact = document.getElementById('custContact').value || '';
-  // Pre-fill email if contact looks like an email
-  const emailGuess = custContact.includes('@') ? custContact : '';
-  document.getElementById('emailTo').value = emailGuess;
-  loadEmailJSKeys();
-  document.getElementById('emailModal').classList.add('open');
-}
-function closeEmailModal() {
-  document.getElementById('emailModal').classList.remove('open');
-}
-async function doSendEmail() {
-  const toEmail    = document.getElementById('emailTo').value.trim();
-  const subject    = document.getElementById('emailSubject').value.trim();
-  const serviceId  = localStorage.getItem('ejs_service')    || '';
-  const templateId = localStorage.getItem('ejs_template')   || '';
-  const publicKey  = localStorage.getItem('ejs_public_key') || '';
-
-  if(!toEmail)    { alert('Please enter the customer email address.'); return; }
-  if(!serviceId || !templateId || !publicKey) {
-    alert('EmailJS not configured yet. Tap EmailJS Settings and enter your Service ID, Template ID and Public Key from emailjs.com'); return;
-  }
-
-  const btn = document.getElementById('sendEmailBtn');
-  btn.textContent = 'Sending...'; btn.disabled = true;
-
-  try {
-    emailjs.init(publicKey);
-    const params = buildReceiptSummary();
-    params.to_email = toEmail;
-    params.subject  = subject;
-    await emailjs.send(serviceId, templateId, params);
-    closeEmailModal();
-    alert('ok Receipt sent to ' + toEmail);
-  } catch(err) {
-    console.error(err);
-    alert('Failed to send email.  Check your EmailJS keys and make sure the template exists. Error: ' + (err.text || err.message || err));
-  } finally {
-    btn.textContent = 'Send Receipt Email'; btn.disabled = false;
-  }
-}
-
-// -- WHATSAPP --
-function sendWhatsApp() {
-  const custContact = document.getElementById('custContact').value || '';
-  // Extract phone - strip spaces, dashes
-  let phone = custContact.replace(/[\s\-()]/g, '');
-  // If it looks like an email, clear it
-  if(phone.includes('@')) phone = '';
-  // Normalise Nigerian numbers: 08xx - 2348xx
-  if(phone.startsWith('0') && phone.length >= 10) {
-    phone = '234' + phone.slice(1);
-  }
-
-  const d = buildReceiptSummary();
-  const msg =
-` *HEMS & GENTS RECEIPT*
-Receipt No: ${d.receipt_num}
-Date: ${d.receipt_date}
-
-*Items:*
-${d.items_list}
-Subtotal: ${d.subtotal}
-*TOTAL: ${d.grand_total}*
-Payment: ${d.pay_method || 'N/A'}
-${d.notes ? 'Note: ' + d.notes : ''}
-
-_Thank you for shopping with Hems & Gents!_
-hemsgents@gmail.com | 0814 841 3093`;
-
-  const encoded = encodeURIComponent(msg);
-  const url = phone
-    ? `https://wa.me/${phone}?text=${encoded}`
-    : `https://wa.me/?text=${encoded}`;
-
-  window.open(url, '_blank');
-}
-</script>
 </body>
 </html>
